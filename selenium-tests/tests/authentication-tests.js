@@ -86,7 +86,7 @@ for (let i = 0; i < 80; i++) {
 
 // Cat 4: Session & Access (251-310)
 const protectedEndpoints = [
-    '/api/dashboard.php?role=auditor&user_code=nonexistent_user',
+    '/api/search.php?q=dashboard',
     '/api/labs.php?action=list', '/api/inventory.php?action=get_equipment',
     '/api/tasks.php?action=list', '/api/attendance.php?action=list',
     '/api/notifications.php?action=list', '/api/search.php?q=admin',
