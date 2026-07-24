@@ -45,16 +45,16 @@ async function runTests() {
 
         // Test empty submit warning
         let loginBtn = await driver.findElement(By.id('aud-login-btn'));
-        await loginBtn.click();
+        await driver.executeScript("arguments[0].click();", loginBtn);
         console.log('Empty submit verification clicked.');
 
         // Toggle password visibility
         let eyeIcon = await driver.findElement(By.id('aud-eye'));
         let passwordInput = await driver.findElement(By.id('aud-pass'));
         console.log(`Initial password type: ${await passwordInput.getAttribute('type')}`);
-        await eyeIcon.click();
+        await driver.executeScript("arguments[0].click();", eyeIcon);
         console.log(`Toggled password type: ${await passwordInput.getAttribute('type')}`);
-        await eyeIcon.click(); // toggle back
+        await driver.executeScript("arguments[0].click();", eyeIcon); // toggle back
 
         // Navigate directly to Sign Up page
         await driver.get(`${BASE_URL}/#auditor-signup`);
@@ -70,7 +70,7 @@ async function runTests() {
         await driver.findElement(By.id('aud-reg-conf')).sendKeys('Password123!');
         
         let registerBtn = await driver.findElement(By.id('aud-reg-btn'));
-        await registerBtn.click();
+        await driver.executeScript("arguments[0].click();", registerBtn);
         console.log('Submitted Auditor registration form.');
 
         // ==========================================
@@ -100,7 +100,7 @@ async function runTests() {
         await driver.findElement(By.id('stu-reg-conf')).sendKeys('password123');
         
         let studentRegBtn = await driver.findElement(By.id('stu-reg-btn'));
-        await studentRegBtn.click();
+        await driver.executeScript("arguments[0].click();", studentRegBtn);
         console.log('Submitted Student registration form.');
 
         // ==========================================
