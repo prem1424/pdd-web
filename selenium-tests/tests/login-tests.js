@@ -10,7 +10,10 @@ async function runTests() {
     let options = new chrome.Options();
     options.addArguments('--disable-gpu');
     options.addArguments('--start-maximized');
-    // options.addArguments('--headless'); // Uncomment for headless execution
+    options.addArguments('--headless'); // Enable headless mode for automated execution
+    options.addArguments('--no-sandbox');
+    options.addArguments('--disable-dev-shm-usage');
+
 
     console.log('Initializing Chrome Driver...');
     let driver = await new Builder()
@@ -19,8 +22,9 @@ async function runTests() {
         .build();
 
     try {
-        console.log(`Navigating to ${BASE_URL}...`);
-        await driver.get(BASE_URL);
+        console.log(`Navigating to ${BASE_URL}/#role-select...`);
+        await driver.get(`${BASE_URL}/#role-select`);
+
 
         // 1. Wait for splash screen / redirect to role selection
         console.log('Waiting for Role Selection Screen...');
