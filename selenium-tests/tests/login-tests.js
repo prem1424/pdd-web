@@ -1,0 +1,128 @@
+const { Builder, By, Key, until } = require('selenium-webdriver');
+const chrome = require('selenium-webdriver/chrome');
+
+// Configuration
+const BASE_URL = 'http://localhost:3000';
+const TIMEOUT = 10000; // 10s timeout
+
+async function runTests() {
+    // Setup Chrome Options (headless mode can be enabled for CI)
+    let options = new chrome.Options();
+    options.addArguments('--disable-gpu');
+    options.addArguments('--start-maximized');
+    // options.addArguments('--headless'); // Uncomment for headless execution
+
+    console.log('Initializing Chrome Driver...');
+    let driver = await new Builder()
+        .forBrowser('chrome')
+        .setChromeOptions(options)
+        .build();
+
+    try {
+        console.log(`Navigating to ${BASE_URL}...`);
+        await driver.get(BASE_URL);
+
+        // 1. Wait for splash screen / redirect to role selection
+        console.log('Waiting for Role Selection Screen...');
+        await driver.wait(until.elementLocated(By.className('role-title')), TIMEOUT);
+        let title = await driver.findElement(By.className('role-title')).getText();
+        console.log(`Role title found: "${title}"`);
+
+        // ==========================================
+        // TEST CASE GROUP 1: AUDITOR ROLE TESTS
+        // ==========================================
+        console.log('\n--- Running Auditor UI Tests ---');
+        // Click Auditor Role Card
+        let auditorCard = await driver.findElement(By.xpath("//div[contains(@class, 'role-card')][contains(., 'Auditor')]"));
+        await auditorCard.click();
+
+        // Wait for Auditor Login screen
+        await driver.wait(until.elementLocated(By.id('aud-email')), TIMEOUT);
+        console.log('Auditor Login Screen loaded successfully.');
+
+        // Test empty submit warning
+        let loginBtn = await driver.findElement(By.id('aud-login-btn'));
+        await loginBtn.click();
+        console.log('Empty submit verification clicked.');
+
+        // Toggle password visibility
+        let eyeIcon = await driver.findElement(By.id('aud-eye'));
+        let passwordInput = await driver.findElement(By.id('aud-pass'));
+        console.log(`Initial password type: ${await passwordInput.getAttribute('type')}`);
+        await eyeIcon.click();
+        console.log(`Toggled password type: ${await passwordInput.getAttribute('type')}`);
+        await eyeIcon.click(); // toggle back
+
+        // Navigate to Sign Up page
+        let signUpLink = await driver.findElement(By.xpath("//a[contains(text(), 'Sign Up')]"));
+        await signUpLink.click();
+        await driver.wait(until.elementLocated(By.id('aud-reg-name')), TIMEOUT);
+        console.log('Auditor Signup Screen loaded successfully.');
+
+        // Fill out sign up form
+        const testAuditorEmail = `test_audit_${Math.floor(Math.random() * 10000)}@smartstock.in`;
+        await driver.findElement(By.id('aud-reg-name')).sendKeys('Test Auditor');
+        await driver.findElement(By.id('aud-reg-empid')).sendKeys(`AUD-${Math.floor(Math.random() * 9000 + 1000)}`);
+        await driver.findElement(By.id('aud-reg-email')).sendKeys(testAuditorEmail);
+        await driver.findElement(By.id('aud-reg-pass')).sendKeys('Password123!');
+        await driver.findElement(By.id('aud-reg-conf')).sendKeys('Password123!');
+        
+        let registerBtn = await driver.findElement(By.id('aud-reg-btn'));
+        await registerBtn.click();
+        console.log('Submitted Auditor registration form.');
+
+        // ==========================================
+        // TEST CASE GROUP 2: STUDENT ROLE TESTS
+        // ==========================================
+        console.log('\n--- Running Student UI Tests ---');
+        // Navigate back to role select
+        await driver.get(`${BASE_URL}/#role-select`);
+        await driver.wait(until.elementLocated(By.className('role-title')), TIMEOUT);
+
+        // Click Student Role Card
+        let studentCard = await driver.findElement(By.xpath("//div[contains(@class, 'role-card')][contains(., 'Student')]"));
+        await studentCard.click();
+
+        // Wait for Student Login screen
+        await driver.wait(until.elementLocated(By.id('stu-roll')), TIMEOUT);
+        console.log('Student Login Screen loaded successfully.');
+
+        // Navigate to Student Register screen
+        let studentRegLink = await driver.findElement(By.xpath("//a[contains(text(), 'Register')]"));
+        await studentRegLink.click();
+        await driver.wait(until.elementLocated(By.id('stu-reg-name')), TIMEOUT);
+        console.log('Student Signup Screen loaded successfully.');
+
+        // Fill out student registration
+        const testRollNo = `STU${Math.floor(100000 + Math.random() * 900000)}`;
+        await driver.findElement(By.id('stu-reg-name')).sendKeys('Student Test User');
+        await driver.findElement(By.id('stu-reg-roll')).sendKeys(testRollNo);
+        await driver.findElement(By.id('stu-reg-dept')).sendKeys('Microbiology');
+        await driver.findElement(By.id('stu-reg-email')).sendKeys(`student_${testRollNo}@smartstock.in`);
+        await driver.findElement(By.id('stu-reg-pass')).sendKeys('password123');
+        await driver.findElement(By.id('stu-reg-conf')).sendKeys('password123');
+        
+        let studentRegBtn = await driver.findElement(By.id('stu-reg-btn'));
+        await studentRegBtn.click();
+        console.log('Submitted Student registration form.');
+
+        // ==========================================
+        // TEST CASE GROUP 3: FORGOT PASSWORD TESTS
+        // ==========================================
+        console.log('\n--- Running Password Reset Flow Tests ---');
+        await driver.get(`${BASE_URL}/#forgot-password`);
+        await driver.wait(until.elementLocated(By.id('forgot-email')), TIMEOUT);
+        console.log('Forgot Password page loaded successfully.');
+
+        console.log('\nAll E2E UI path test executions completed successfully!');
+
+    } catch (error) {
+        console.error('An error occurred during test execution:', error);
+    } finally {
+        console.log('Closing browser driver...');
+        await driver.quit();
+    }
+}
+
+// Execute tests
+runTests();
