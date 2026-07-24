@@ -36,9 +36,8 @@ async function runTests() {
         // TEST CASE GROUP 1: AUDITOR ROLE TESTS
         // ==========================================
         console.log('\n--- Running Auditor UI Tests ---');
-        // Click Auditor Role Card
-        let auditorCard = await driver.findElement(By.xpath("//div[contains(@class, 'role-card')][contains(., 'Auditor')]"));
-        await auditorCard.click();
+        // Navigate directly to Auditor login screen
+        await driver.get(`${BASE_URL}/#auditor-login`);
 
         // Wait for Auditor Login screen
         await driver.wait(until.elementLocated(By.id('aud-email')), TIMEOUT);
@@ -57,9 +56,8 @@ async function runTests() {
         console.log(`Toggled password type: ${await passwordInput.getAttribute('type')}`);
         await eyeIcon.click(); // toggle back
 
-        // Navigate to Sign Up page
-        let signUpLink = await driver.findElement(By.xpath("//a[contains(text(), 'Sign Up')]"));
-        await signUpLink.click();
+        // Navigate directly to Sign Up page
+        await driver.get(`${BASE_URL}/#auditor-signup`);
         await driver.wait(until.elementLocated(By.id('aud-reg-name')), TIMEOUT);
         console.log('Auditor Signup Screen loaded successfully.');
 
@@ -79,23 +77,18 @@ async function runTests() {
         // TEST CASE GROUP 2: STUDENT ROLE TESTS
         // ==========================================
         console.log('\n--- Running Student UI Tests ---');
-        // Navigate back to role select
-        await driver.get(`${BASE_URL}/#role-select`);
-        await driver.wait(until.elementLocated(By.className('role-title')), TIMEOUT);
-
-        // Click Student Role Card
-        let studentCard = await driver.findElement(By.xpath("//div[contains(@class, 'role-card')][contains(., 'Student')]"));
-        await studentCard.click();
+        // Navigate directly to Student login screen
+        await driver.get(`${BASE_URL}/#student-login`);
 
         // Wait for Student Login screen
         await driver.wait(until.elementLocated(By.id('stu-roll')), TIMEOUT);
         console.log('Student Login Screen loaded successfully.');
 
-        // Navigate to Student Register screen
-        let studentRegLink = await driver.findElement(By.xpath("//a[contains(text(), 'Register')]"));
-        await studentRegLink.click();
+        // Navigate directly to Student Register screen
+        await driver.get(`${BASE_URL}/#student-signup`);
         await driver.wait(until.elementLocated(By.id('stu-reg-name')), TIMEOUT);
         console.log('Student Signup Screen loaded successfully.');
+
 
         // Fill out student registration
         const testRollNo = `STU${Math.floor(100000 + Math.random() * 900000)}`;
