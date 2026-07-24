@@ -192,4 +192,57 @@ XLSX.utils.book_append_sheet(wb, testCasesSheet, 'Detailed Test Cases');
 const outputFilePath = path.join(__dirname, 'smartstock_test_cases.xlsx');
 XLSX.writeFile(wb, outputFilePath);
 
-console.log(`Successfully generated SmartStock test cases sheet containing ${testCases.length} rows at: ${outputFilePath}`);
+console.log(`\n${'='.repeat(120)}`);
+console.log(`  SMARTSTOCK E2E TEST CASES REPORT — Total: ${testCases.length} Test Cases`);
+console.log(`  Generated: ${new Date().toISOString().split('T')[0]}`);
+console.log(`${'='.repeat(120)}\n`);
+
+// Print Summary
+console.log('╔══════════════════════════════════════════════════════════════════════════════════════╗');
+console.log('║                              TEST SUMMARY                                          ║');
+console.log('╠══════════════════════════════════════════════════════════════════════════════════════╣');
+summaryData.forEach(row => {
+    console.log(`║  ${row.Metric.padEnd(30)} : ${String(row.Value).padEnd(52)} ║`);
+});
+console.log('╚══════════════════════════════════════════════════════════════════════════════════════╝\n');
+
+// Print all test cases grouped by module
+const modules = [...new Set(testCases.map(tc => tc.Module))];
+modules.forEach(mod => {
+    const moduleCases = testCases.filter(tc => tc.Module === mod);
+    console.log(`\n${'━'.repeat(120)}`);
+    console.log(`  MODULE: ${mod.toUpperCase()} (${moduleCases.length} Test Cases)`);
+    console.log(`${'━'.repeat(120)}`);
+    console.log(`${'─'.repeat(120)}`);
+    console.log(`  ${'TC ID'.padEnd(16)} | ${'Role'.padEnd(10)} | ${'Priority'.padEnd(8)} | ${'Description'.padEnd(78)}`);
+    console.log(`${'─'.repeat(120)}`);
+    moduleCases.forEach(tc => {
+        const desc = tc['Test Case Description'].length > 78 
+            ? tc['Test Case Description'].substring(0, 75) + '...' 
+            : tc['Test Case Description'];
+        console.log(`  ${tc['Test Case ID'].padEnd(16)} | ${tc.Role.padEnd(10)} | ${tc.Priority.padEnd(8)} | ${desc}`);
+    });
+    console.log(`${'─'.repeat(120)}`);
+});
+
+// Print detailed view of every test case
+console.log(`\n\n${'='.repeat(120)}`);
+console.log(`  DETAILED TEST CASES — ALL ${testCases.length} TEST CASES`);
+console.log(`${'='.repeat(120)}\n`);
+
+testCases.forEach((tc, index) => {
+    console.log(`┌${'─'.repeat(118)}┐`);
+    console.log(`│ ${(index + 1).toString().padStart(3)}. ${tc['Test Case ID']}  |  Module: ${tc.Module}  |  Role: ${tc.Role}  |  Priority: ${tc.Priority}${' '.repeat(Math.max(0, 118 - 6 - tc['Test Case ID'].length - 12 - tc.Module.length - 10 - tc.Role.length - 14 - tc.Priority.length))}│`);
+    console.log(`├${'─'.repeat(118)}┤`);
+    console.log(`│ Description  : ${tc['Test Case Description'].padEnd(101)}│`);
+    console.log(`│ Pre-condition: ${tc['Pre-conditions'].substring(0, 101).padEnd(101)}│`);
+    console.log(`│ Input Data   : ${tc['Input Data'].substring(0, 101).padEnd(101)}│`);
+    console.log(`│ Expected     : ${tc['Expected Result'].substring(0, 101).padEnd(101)}│`);
+    console.log(`│ Status       : ${tc.Status.padEnd(101)}│`);
+    console.log(`└${'─'.repeat(118)}┘`);
+});
+
+console.log(`\n${'='.repeat(120)}`);
+console.log(`  ✅ TOTAL TEST CASES GENERATED: ${testCases.length}`);
+console.log(`  ✅ EXCEL FILE SAVED TO: ${outputFilePath}`);
+console.log(`${'='.repeat(120)}\n`);
