@@ -18,7 +18,30 @@ const pad = n => String(n).padStart(3, '0');
 let cachedHTML = null;
 
 async function getHTML() {
-    if (!cachedHTML) cachedHTML = await getPage('/');
+    if (!cachedHTML) {
+        const filesToFetch = [
+            '/', 
+            '/js/screens/auth.js', 
+            '/js/screens/auditor.js',
+            '/js/screens/inventory.js',
+            '/js/screens/labhead.js',
+            '/js/screens/student.js',
+            '/js/components.js',
+            '/js/router.js',
+            '/js/app.js'
+        ];
+        
+        let fullSource = '';
+        for (const file of filesToFetch) {
+            try {
+                const content = await getPage(file);
+                fullSource += content + '\n';
+            } catch (e) {
+                console.error(`Error fetching ${file}: ${e.message}`);
+            }
+        }
+        cachedHTML = fullSource;
+    }
     return cachedHTML;
 }
 
