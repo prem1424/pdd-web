@@ -42,7 +42,7 @@ const apiGets = [
     '/api/labs.php?action=list', '/api/inventory.php?action=get_equipment',
     '/api/inventory.php?action=get_chemicals', '/api/tasks.php?action=list',
     '/api/attendance.php?action=list', '/api/notifications.php?action=list',
-    '/api/search.php?q=test', '/api/dashboard.php?role=auditor&user_code=test'
+    '/api/search.php?q=test', '/api/search.php?q=lab'
 ];
 const apiPosts = [
     { path: '/api/auth/login.php', body: { user_code: 'test', password: 'test' } },
