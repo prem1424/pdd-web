@@ -38,6 +38,8 @@ async function runTests() {
         console.log('\n--- Running Auditor UI Tests ---');
         // Navigate directly to Auditor login screen
         await driver.get(`${BASE_URL}/#auditor-login`);
+        await driver.sleep(1500);
+
 
         // Wait for Auditor Login screen
         await driver.wait(until.elementLocated(By.id('aud-email')), TIMEOUT);
@@ -58,6 +60,7 @@ async function runTests() {
 
         // Navigate directly to Sign Up page
         await driver.get(`${BASE_URL}/#auditor-signup`);
+        await driver.sleep(1500);
         await driver.wait(until.elementLocated(By.id('aud-reg-name')), TIMEOUT);
         console.log('Auditor Signup Screen loaded successfully.');
 
@@ -79,6 +82,7 @@ async function runTests() {
         console.log('\n--- Running Student UI Tests ---');
         // Navigate directly to Student login screen
         await driver.get(`${BASE_URL}/#student-login`);
+        await driver.sleep(1500);
 
         // Wait for Student Login screen
         await driver.wait(until.elementLocated(By.id('stu-roll')), TIMEOUT);
@@ -86,6 +90,7 @@ async function runTests() {
 
         // Navigate directly to Student Register screen
         await driver.get(`${BASE_URL}/#student-signup`);
+        await driver.sleep(1500);
         await driver.wait(until.elementLocated(By.id('stu-reg-name')), TIMEOUT);
         console.log('Student Signup Screen loaded successfully.');
 
@@ -108,6 +113,7 @@ async function runTests() {
         // ==========================================
         console.log('\n--- Running Password Reset Flow Tests ---');
         await driver.get(`${BASE_URL}/#forgot-password`);
+        await driver.sleep(1500);
         await driver.wait(until.elementLocated(By.id('forgot-email')), TIMEOUT);
         console.log('Forgot Password page loaded successfully.');
 
