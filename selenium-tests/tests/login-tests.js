@@ -75,6 +75,8 @@ async function runTests() {
         let registerBtn = await driver.findElement(By.id('aud-reg-btn'));
         await driver.executeScript("arguments[0].click();", registerBtn);
         console.log('Submitted Auditor registration form.');
+        await driver.sleep(2500);
+
 
         // ==========================================
         // TEST CASE GROUP 2: STUDENT ROLE TESTS
@@ -107,6 +109,8 @@ async function runTests() {
         let studentRegBtn = await driver.findElement(By.id('stu-reg-btn'));
         await driver.executeScript("arguments[0].click();", studentRegBtn);
         console.log('Submitted Student registration form.');
+        await driver.sleep(2500);
+
 
         // ==========================================
         // TEST CASE GROUP 3: FORGOT PASSWORD TESTS
