@@ -66,7 +66,7 @@ const roleChecks = [
     ['role-title', 'role title class'], ['Select Your Role', 'role selection heading'],
     ['Auditor', 'Auditor role text'], ['Student', 'Student role text'], ['Lab Head', 'Lab Head role text'],
     ['role-card', 'role card class'], ['role-card-icon', 'role icon class'], ['role-card-title', 'role name class'],
-    ['role-card-desc', 'role description class'], ['role-select', 'role select screen'],
+    ['role-card-sub', 'role description class'], ['role-select', 'role select screen'],
     ['person', 'person icon'], ['science', 'science icon'], ['navigate', 'navigation function'],
     ['Router', 'Router reference'], ['onclick', 'click handlers']
 ];
