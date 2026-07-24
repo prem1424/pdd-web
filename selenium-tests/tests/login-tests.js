@@ -118,8 +118,9 @@ async function runTests() {
         console.log('\n--- Running Password Reset Flow Tests ---');
         await driver.get(`${BASE_URL}/#forgot-password`);
         await driver.sleep(1500);
-        await driver.wait(until.elementLocated(By.id('forgot-email')), TIMEOUT);
+        await driver.wait(until.elementLocated(By.id('fp-email')), TIMEOUT);
         console.log('Forgot Password page loaded successfully.');
+
 
         console.log('\nAll E2E UI path test executions completed successfully!');
 
