@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+  <title>Smart Stock — Lab Inventory Management</title>
+  <meta name="description" content="Smart Stock: Advanced Laboratory Inventory & Stock Management System for Biotech, Microbiology, Molecular Biology, and Clinical Labs.">
+  <meta name="theme-color" content="#020818">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="js/html5-qrcode.min.js" type="text/javascript"></script>
+  <link rel="stylesheet" href="css/main.css?v=1.0.4">
+</head>
+<body>
+  <div id="app">
+    <!-- App Shell -->
+    <div id="app-shell" class="app-shell" style="display: none;">
+      <!-- Sidebar -->
+      <aside id="app-sidebar" class="sidebar" role="navigation" aria-label="Main navigation">
+        <div class="sidebar-header">
+          <div class="sidebar-logo">
+            <span class="material-icons-round">biotech</span>
+            <span class="sidebar-brand">Smart Stock</span>
+          </div>
+          <button class="sidebar-close" id="sidebar-close-btn" aria-label="Close sidebar">
+            <span class="material-icons-round">close</span>
+          </button>
+        </div>
+        <div class="sidebar-user">
+          <div class="sidebar-avatar" id="sidebar-avatar"></div>
+          <div class="sidebar-user-info" id="sidebar-user-info">
+            <span class="sidebar-user-name" id="sidebar-user-name">User</span>
+            <span class="sidebar-user-role" id="sidebar-user-role">Role</span>
+          </div>
+        </div>
+        <nav class="sidebar-nav" id="sidebar-menu">
+          <!-- Injected dynamically -->
+        </nav>
+        <div class="sidebar-footer">
+          <button class="sidebar-nav-item sidebar-logout" onclick="window.AppActions.logout()" style="background:none;border:none;width:100%;text-align:left;cursor:pointer;color:var(--danger)">
+            <span class="material-icons-round">logout</span>
+            <span>Logout</span>
+          </button>
+        </div>
+      </aside>
+      <div class="sidebar-overlay" id="sidebar-overlay"></div>
+
+      <!-- Main Content -->
+      <div class="main-area">
+        <!-- Top Navbar -->
+        <header class="topbar" id="app-topbar">
+          <div class="topbar-left">
+            <button class="menu-btn" id="menu-toggle" aria-label="Open menu" style="background:none;border:none;color:var(--text-primary);cursor:pointer">
+              <span class="material-icons-round">menu</span>
+            </button>
+            <div class="topbar-title" id="topbar-title">Dashboard</div>
+          </div>
+          <div class="topbar-right" style="display:flex;gap:12px;align-items:center">
+            <button class="topbar-btn" onclick="window.Router.navigate('search')" aria-label="Search" style="background:none;border:none;color:var(--text-primary);cursor:pointer">
+              <span class="material-icons-round">search</span>
+            </button>
+            <button class="topbar-btn notif-btn" id="notif-btn" onclick="window.Router.navigate('notifications')" aria-label="Notifications" style="background:none;border:none;color:var(--text-primary);cursor:pointer;position:relative">
+              <span class="material-icons-round">notifications</span>
+              <span class="notif-badge" style="position:absolute;top:-4px;right:-4px;background:var(--danger);color:#fff;border-radius:50%;width:16px;height:16px;font-size:10px;display:none;align-items:center;justify-content:center">0</span>
+            </button>
+            <div class="topbar-avatar" id="topbar-avatar" onclick="window.Router.navigate('profile')" style="width:36px;height:36px;border-radius:10px;background:var(--primary);cursor:pointer;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700">U</div>
+          </div>
+        </header>
+
+        <!-- Screen Content -->
+        <main class="content-area" id="content-area" role="main" style="padding: 100px 24px 40px;">
+          <!-- Screen content injected here -->
+        </main>
+
+        <!-- Global QR FAB for Lab Head -->
+        <button id="global-qr-fab" class="global-qr-fab animate-in" onclick="window.Router.navigate('labhead-attendance'); setTimeout(()=>window.Screens['labhead-attendance'].openQRModal(), 100)" aria-label="Scan QR" style="display: none; position: fixed; bottom: 24px; right: 24px; width: 56px; height: 56px; border-radius: 50%; background: linear-gradient(135deg, var(--teal), var(--primary-bright)); color: white; border: none; box-shadow: 0 4px 12px rgba(0,230,118,0.4); z-index: 1001; cursor: pointer; align-items: center; justify-content: center;">
+          <span class="material-icons-round" style="font-size: 28px;">qr_code_scanner</span>
+        </button>
+
+        <!-- Bottom Navigation (Hidden on web portal) -->
+        <nav class="bottom-nav" id="app-bottom-nav" role="navigation" aria-label="Bottom navigation" style="display:none !important;justify-content:space-around;padding:12px 0;background:var(--bg-card);border-top:1px solid var(--border-color);position:fixed;bottom:0;left:0;right:0;z-index:1000">
+          <!-- Injected dynamically -->
+        </nav>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scripts (order matters) -->
+  <script src="js/data.js?v=1.0.4"></script>
+  <script src="js/charts.js?v=1.0.4"></script>
+  <script src="js/components.js?v=1.0.4"></script>
+  <script src="js/screens/auth.js?v=1.0.4"></script>
+  <script src="js/screens/auditor.js?v=1.0.4"></script>
+  <script src="js/screens/inventory.js?v=1.0.4"></script>
+  <script src="js/screens/labhead.js?v=1.0.4"></script>
+  <script src="js/screens/student.js?v=1.0.4"></script>
+  <script src="js/screens/analytics.js?v=1.0.4"></script>
+  <script src="js/screens/settings.js?v=1.0.4"></script>
+  <script src="js/screens/search.js?v=1.0.4"></script>
+  <script src="js/router.js?v=1.0.4"></script>
+  <script src="js/app.js?v=1.0.4"></script>
+</body>
+</html>
