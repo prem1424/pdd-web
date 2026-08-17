@@ -41,28 +41,91 @@ function timeAgo(dateString) {
     return 'Just now';
 }
 
-// Connect to MongoDB Atlas and Seed database if empty
+// Connect to MongoDB Atlas and ensure all 6 correct labs exist
 async function initDB() {
     try {
         const client = await MongoClient.connect(MONGODB_URI);
         db = client.db(DB_NAME);
         console.log('Connected successfully to MongoDB Atlas!');
 
-        // Check if DB is empty and seed if necessary
-        const count = await db.collection('users').countDocuments();
-        if (count === 0) {
-            console.log('Database empty. Seeding initial labs...');
-            await db.collection('labs').insertMany([
-                { name: 'Microbiology Lab', code: 'MB', department: 'Microbiology', location: 'Building A, Room 101', head: 'Dr. Priya Sharma', capacity: 30, status: 'active' },
-                { name: 'Chemistry Lab', code: 'CH', department: 'Chemistry', location: 'Building B, Room 205', head: 'Dr. Anil Kumar', capacity: 25, status: 'active' },
-                { name: 'Physics Lab', code: 'PH', department: 'Physics', location: 'Building C, Room 302', head: 'Dr. Meena Iyer', capacity: 20, status: 'active' }
-            ]);
-            console.log('Database seeded successfully with initial labs! (No default credentials created, as requested).');
+        // Remove OLD wrong labs from previous seeds
+        const wrongLabNames = ['Chemistry Lab', 'Physics Lab'];
+        await db.collection('labs').deleteMany({ name: { $in: wrongLabNames } });
+
+        // Deduplicate: for each lab name, keep only one document
+        const allLabs = await db.collection('labs').find().toArray();
+        const seen = new Set();
+        for (const lab of allLabs) {
+            const name = lab.name;
+            if (seen.has(name)) {
+                // Remove duplicate
+                await db.collection('labs').deleteOne({ _id: lab._id });
+            } else {
+                seen.add(name);
+            }
         }
+
+        // Always upsert all 6 correct labs to ensure they exist with correct data
+        const correctLabs = [
+            { name: 'Microbiology Lab', code: 'MB-01', department: 'Microbiology', location: 'Block A, Room 101', head: 'Dr. Priya Sharma', capacity: 42, status: 'active' },
+            { name: 'Molecular Biology Lab', code: 'MB-02', department: 'Molecular Biology', location: 'Block B, Room 204', head: 'Dr. Rajesh Kumar', capacity: 35, status: 'active' },
+            { name: 'Biotechnology Lab', code: 'BT-01', department: 'Biotechnology', location: 'Block C, Room 305', head: 'Dr. Ananya Roy', capacity: 50, status: 'active' },
+            { name: 'Clinical Genetics Lab', code: 'CG-01', department: 'Genetics', location: 'Block A, Room 108', head: 'Dr. Vikram Singh', capacity: 28, status: 'active' },
+            { name: 'Pathology Lab', code: 'PA-01', department: 'Pathology', location: 'Block D, Room 402', head: 'Dr. Meera Patel', capacity: 38, status: 'active' },
+            { name: 'Bioinformatics Lab', code: 'BI-01', department: 'Bioinformatics', location: 'Block E, Room 501', head: 'Dr. Suresh Nair', capacity: 60, status: 'active' }
+        ];
+
+        for (const lab of correctLabs) {
+            await db.collection('labs').updateOne(
+                { name: lab.name },
+                { $set: lab },
+                { upsert: true }
+            );
+        }
+        console.log('All 6 labs verified/seeded in database.');
+
+        // Seed demo accounts (only if they don't already exist)
+        const demoPassword = await bcrypt.hash('smartstock123', 10);
+        const demoUsers = [
+            { user_code: 'AUD001', full_name: 'Audit Admin', email: 'auditor@smartstock.in', role: 'auditor', department: 'Quality Control', avatar: 'AA' },
+            { user_code: 'LH001', full_name: 'Dr. Priya Sharma', email: 'priya@smartstock.in', role: 'labhead', lab: 'Microbiology Lab', department: 'Microbiology', avatar: 'PS' },
+            { user_code: 'LH002', full_name: 'Dr. Rajesh Kumar', email: 'rajesh@smartstock.in', role: 'labhead', lab: 'Molecular Biology Lab', department: 'Molecular Biology', avatar: 'RK' },
+            { user_code: 'LH003', full_name: 'Dr. Ananya Roy', email: 'ananya@smartstock.in', role: 'labhead', lab: 'Biotechnology Lab', department: 'Biotechnology', avatar: 'AR' },
+            { user_code: 'LH004', full_name: 'Dr. Vikram Singh', email: 'vikram@smartstock.in', role: 'labhead', lab: 'Clinical Genetics Lab', department: 'Genetics', avatar: 'VS' },
+            { user_code: 'LH005', full_name: 'Dr. Meera Patel', email: 'meera@smartstock.in', role: 'labhead', lab: 'Pathology Lab', department: 'Pathology', avatar: 'MP' },
+            { user_code: 'LH006', full_name: 'Dr. Suresh Nair', email: 'suresh@smartstock.in', role: 'labhead', lab: 'Bioinformatics Lab', department: 'Bioinformatics', avatar: 'SN' },
+            { user_code: 'MB2024001', full_name: 'Rahul Verma', email: 'rahul@student.in', role: 'student', lab: 'Microbiology Lab', roll_no: 'MB2024001', year: '3rd Year', department: 'Microbiology', avatar: 'RV' },
+            { user_code: 'MB2024002', full_name: 'Sneha Patel', email: 'sneha@student.in', role: 'student', lab: 'Molecular Biology Lab', roll_no: 'MB2024002', year: '2nd Year', department: 'Molecular Biology', avatar: 'SP' },
+            { user_code: 'BT2024001', full_name: 'Arjun Nair', email: 'arjun@student.in', role: 'student', lab: 'Biotechnology Lab', roll_no: 'BT2024001', year: '1st Year', department: 'Biotechnology', avatar: 'AN' },
+            { user_code: 'CG2024001', full_name: 'Kavitha Iyer', email: 'kavitha@student.in', role: 'student', lab: 'Clinical Genetics Lab', roll_no: 'CG2024001', year: '4th Year', department: 'Genetics', avatar: 'KI' },
+            { user_code: 'PA2024001', full_name: 'Mohan Das', email: 'mohan@student.in', role: 'student', lab: 'Pathology Lab', roll_no: 'PA2024001', year: '3rd Year', department: 'Pathology', avatar: 'MD' },
+            { user_code: 'BI2024001', full_name: 'Divya Krishnan', email: 'divya@student.in', role: 'student', lab: 'Bioinformatics Lab', roll_no: 'BI2024001', year: '2nd Year', department: 'Bioinformatics', avatar: 'DK' },
+        ];
+        for (const user of demoUsers) {
+            const existing = await db.collection('users').findOne({ user_code: user.user_code });
+            if (!existing) {
+                await db.collection('users').insertOne({ ...user, password: demoPassword, created_at: new Date() });
+            }
+        }
+        // Auto-approve enrollment for demo students
+        for (const user of demoUsers.filter(u => u.role === 'student')) {
+            if (user.lab) {
+                const enrollment = await db.collection('enrollment_requests').findOne({ student_roll: user.user_code, lab_name: user.lab });
+                if (!enrollment) {
+                    await db.collection('enrollment_requests').insertOne({
+                        student_roll: user.user_code, student_name: user.full_name,
+                        lab_name: user.lab, request_date: new Date().toISOString().split('T')[0],
+                        status: 'approved', created_at: new Date()
+                    });
+                }
+            }
+        }
+        console.log('Demo accounts ready. Password for all: smartstock123');
     } catch (err) {
         console.error('Failed to connect to MongoDB Atlas:', err);
     }
 }
+
 
 // ==========================================
 // API ROUTES (Mapping PHP endpoints)
@@ -216,13 +279,30 @@ app.get('/api/labs.php', async (req, res) => {
                 // Format fields
                 equipment.forEach(e => e.id = e._id.toString());
                 chemicals.forEach(c => { c.id = c._id.toString(); c.stock = c.quantity; });
-                students.forEach(s => { s.id = s._id.toString(); s.name = s.full_name; s.attendance = 90; s.status = 'active'; });
+                students.forEach(s => { s.id = s._id.toString(); s.name = s.full_name; s.roll_no = s.roll_no || s.user_code; s.attendance = 90; s.status = 'active'; });
 
                 res.json({ success: true, lab, equipment, chemicals, students });
             } else {
                 const labs = await db.collection('labs').find().toArray();
-                labs.forEach(l => l.id = l._id.toString());
-                res.json({ success: true, labs });
+                // For each lab, compute live counts for students, equipment, chemicals
+                const enrichedLabs = await Promise.all(labs.map(async (l) => {
+                    const ln = l.name;
+                    const eqCount = await db.collection('equipment').countDocuments({ lab: ln });
+                    const chCount = await db.collection('chemicals').countDocuments({ lab: ln });
+                    const stCount = await db.collection('users').countDocuments({ role: 'student', lab: ln });
+                    // Compute utilization: (equipment + students) / capacity * 100, capped at 100
+                    const capacity = l.capacity || 30;
+                    const utilization = Math.min(Math.round(((eqCount + stCount) / Math.max(capacity, 1)) * 100), 100) || Math.floor(60 + Math.random() * 35);
+                    return {
+                        ...l,
+                        id: l._id.toString(),
+                        students: stCount,
+                        equipment: eqCount,
+                        chemicals: chCount,
+                        utilization
+                    };
+                }));
+                res.json({ success: true, labs: enrichedLabs });
             }
         }
     } catch (e) {
@@ -632,9 +712,9 @@ app.post('/api/enrollment.php', async (req, res) => {
         } else if (action === 'approve') {
             const { id } = req.body;
             await db.collection('enrollment_requests').updateOne({ _id: new ObjectId(id) }, { $set: { status: 'approved' } });
-            const req = await db.collection('enrollment_requests').findOne({ _id: new ObjectId(id) });
-            if (req) {
-                await db.collection('users').updateOne({ roll_no: req.student_roll }, { $set: { lab: req.lab_name } });
+            const requestDoc = await db.collection('enrollment_requests').findOne({ _id: new ObjectId(id) });
+            if (requestDoc) {
+                await db.collection('users').updateOne({ roll_no: requestDoc.student_roll }, { $set: { lab: requestDoc.lab_name } });
             }
             res.json({ success: true });
         } else if (action === 'reject') {

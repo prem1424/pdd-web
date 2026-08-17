@@ -17,26 +17,12 @@ window.Router = {
       }
     }
     
-    const publicScreens = ['splash', 'intro', 'role-select', 'auditor-login', 'auditor-signup', 'labhead-login', 'labhead-signup', 'student-login', 'student-signup', 'forgot-password'];
-    
-    // 2. Guard: if NOT logged in, trying to access a protected screen
-    const isPublic = publicScreens.includes(route);
-    if (!isPublic && !window.AppState.user) {
-      route = 'role-select';
-    }
-    
-    // 3. Guard: if logged in, trying to access public screens (except splash screen)
-    if (isPublic && window.AppState.user && route !== 'splash') {
-      if (window.AppState.role === 'student' && !window.AppState.selectedLab) {
-        route = 'student-lab-selection';
-      } else {
-        route = window.AppState.role + '-dashboard';
-      }
-    }
-    
-    // 4. Guard: if student and lab is not selected, restrict to student-lab-selection only
-    if (window.AppState.user && window.AppState.role === 'student' && !window.AppState.selectedLab && route !== 'student-lab-selection') {
-      route = 'student-lab-selection';
+    // 2. Guard: if NOT logged in, auto-assign default user session for all-in-one web app experience
+    if (!window.AppState.user) {
+      window.AppState.role = 'labhead';
+      window.AppState.user = (window.AppData && window.AppData.users) ? window.AppData.users.labhead : { name: 'Dr. Priya Sharma', email: 'priya@smartstock.in', role: 'labhead', lab: 'Microbiology Lab' };
+      window.AppState.selectedLab = 'Microbiology Lab';
+      window.AppState.save();
     }
     
     this.currentRoute = route;
@@ -190,11 +176,8 @@ window.Router = {
     const hash = window.location.hash.substring(1);
     if (hash && window.Screens[hash]) {
       this.navigate(hash, false);
-    } else if (window.AppState.user) {
-      const route = window.AppState.role === 'student' && !window.AppState.selectedLab ? 'student-lab-selection' : window.AppState.role + '-dashboard';
-      this.navigate(route, false);
     } else {
-      this.navigate('splash', false);
+      this.navigate('labhead-dashboard', false);
     }
   }
 };

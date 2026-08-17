@@ -21,22 +21,22 @@ window.Screens['labhead-dashboard'] = function() {
 
   return `
   <div>
-    <div class="dashboard-welcome animate-in" style="background:linear-gradient(135deg,var(--teal) 0%,rgba(0,230,118,0.8) 100%)">
-      <div style="display:flex;align-items:center;justify-content:space-between">
+    <div class="dashboard-welcome glass-banner animate-in" style="padding: 28px; margin-bottom: 24px;">
+      <div style="display:flex;align-items:center;justify-content:space-between;position:relative;z-index:2">
         <div>
-          <div class="welcome-greeting">${todayStr}</div>
-          <div class="welcome-name">${labName}</div>
-          <div class="welcome-subtitle">Welcome back, ${u.name}</div>
+          <div class="welcome-greeting" style="color:var(--cyan-bright);font-size:12px;font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-bottom:4px">${todayStr}</div>
+          <div class="welcome-name" style="font-size:26px;font-weight:800;color:#fff">${labName}</div>
+          <div class="welcome-subtitle" style="color:var(--text-secondary);font-size:14px;margin-top:2px">Welcome back, <strong style="color:var(--text-primary)">${u.name}</strong></div>
         </div>
-        <div style="background:rgba(255,255,255,0.1);border-radius:16px;padding:14px;text-align:center">
-          <div style="font-size:28px;font-weight:800;color:#fff">${presentCount}/${totalCount}</div>
-          <div style="font-size:11px;color:rgba(255,255,255,0.7)">Present Today</div>
+        <div style="background:rgba(13, 31, 60, 0.7);border:1px solid rgba(0,229,255,0.3);border-radius:18px;padding:16px 24px;text-align:center;box-shadow:0 8px 24px rgba(0,0,0,0.3)">
+          <div style="font-size:32px;font-weight:800;color:var(--cyan-bright);line-height:1">${presentCount}/${totalCount}</div>
+          <div style="font-size:11px;font-weight:600;color:var(--text-secondary);margin-top:4px">Present Today</div>
         </div>
       </div>
-      <div class="welcome-stats">
-        <div><div class="welcome-stat-val">${pendingTasks}</div><div class="welcome-stat-lab">Pending Tasks</div></div>
-        <div><div class="welcome-stat-val">${lowStockItems}</div><div class="welcome-stat-lab">Low Stock Items</div></div>
-        <div><div class="welcome-stat-val">${pendingApprovals}</div><div class="welcome-stat-lab">Approval Requests</div></div>
+      <div class="welcome-stats" style="margin-top:24px;padding-top:20px;border-top:1px solid rgba(255,255,255,0.1);display:grid;grid-template-columns:repeat(3,1fr);gap:16px;position:relative;z-index:2">
+        <div style="background:rgba(255,255,255,0.05);padding:12px 16px;border-radius:12px;border:1px solid rgba(255,255,255,0.08)"><div class="welcome-stat-val" style="font-size:22px;font-weight:700;color:#fff">${pendingTasks}</div><div class="welcome-stat-lab" style="font-size:12px;color:var(--text-secondary)">Pending Tasks</div></div>
+        <div style="background:rgba(255,255,255,0.05);padding:12px 16px;border-radius:12px;border:1px solid rgba(255,255,255,0.08)"><div class="welcome-stat-val" style="font-size:22px;font-weight:700;color:var(--warning)">${lowStockItems}</div><div class="welcome-stat-lab" style="font-size:12px;color:var(--text-secondary)">Low Stock Items</div></div>
+        <div style="background:rgba(255,255,255,0.05);padding:12px 16px;border-radius:12px;border:1px solid rgba(255,255,255,0.08)"><div class="welcome-stat-val" style="font-size:22px;font-weight:700;color:var(--cyan-bright)">${pendingApprovals}</div><div class="welcome-stat-lab" style="font-size:12px;color:var(--text-secondary)">Approval Requests</div></div>
       </div>
     </div>
 
@@ -47,10 +47,10 @@ window.Screens['labhead-dashboard'] = function() {
           ${(window.AppData.attendance && window.AppData.attendance.length > 0 && (window.AppData.attendance && window.AppData.attendance.length > 0 && window.AppData.attendance[0].students ? window.AppData.attendance[0].students : [])) ? (window.AppData.attendance && window.AppData.attendance.length > 0 && window.AppData.attendance[0].students ? window.AppData.attendance[0].students : []).slice(0,4).map(s=>`
             <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border-color)">
               <div style="display:flex;align-items:center;gap:10px">
-                ${window.Components.avatar(s.name.split(' ').map(n=>n[0]).join(''),'sm')}
-                <div style="font-size:13px;font-weight:600;color:var(--text-primary)">${s.name}</div>
+                ${window.Components.avatar((s.name||'Student').split(' ').map(n=>n[0]).join(''),'sm')}
+                <div style="font-size:13px;font-weight:600;color:var(--text-primary)">${s.name||'Student'}</div>
               </div>
-              <span class="badge badge-${window.AppUtils.getStatusColor(s.status)}">${s.status}</span>
+              <span class="badge badge-${window.AppUtils.getStatusColor(s.status)}">${s.status||'present'}</span>
             </div>
           `).join('') : '<div style="font-size:13px;color:var(--text-secondary);text-align:center;padding:10px 0">No attendance records for today.</div>'}
         </div>
@@ -82,8 +82,8 @@ window.Screens['labhead-dashboard'] = function() {
         {icon:'assignment_ind',label:'Enrollments',route:'lab-enrollments',color:'linear-gradient(135deg,#D81B60,#EC407A)'},
         {icon:'summarize',label:'Reports',route:'lab-reports',color:'linear-gradient(135deg,#4527A0,#7E57C2)'}
       ].map(q=>`
-        <div class="card" style="cursor:pointer;padding:20px;display:flex;align-items:center;gap:16px" onclick="window.Router.navigate('${q.route}')" onmouseover="this.style.transform='translateX(4px)'" onmouseout="this.style.transform='translateX(0)'">
-          <div style="width:48px;height:48px;border-radius:14px;background:${q.color};display:flex;align-items:center;justify-content:center;flex-shrink:0">
+        <div class="card glass-card" style="cursor:pointer;padding:20px;display:flex;align-items:center;gap:16px" onclick="window.Router.navigate('${q.route}')">
+          <div style="width:48px;height:48px;border-radius:14px;background:${q.color};display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 4px 12px rgba(0,0,0,0.3)">
             <span class="material-icons-round" style="color:#fff">${q.icon}</span>
           </div>
           <div style="font-weight:700;font-size:14px;color:var(--text-primary)">${q.label}</div>
@@ -99,12 +99,12 @@ window.Screens['labhead-dashboard'].afterRender = function() {
 // ---- STUDENT MONITORING ----
 window.Screens['student-monitoring'] = function() {
   const labName = window.AppState?.selectedLab || window.AppState?.user?.lab || 'Microbiology Lab';
-  const myStudents = (window.AppData.students || []).filter(s => !s.lab || s.lab.toLowerCase() === labName.toLowerCase() || labName.toLowerCase().includes(s.lab.toLowerCase()));
+  const myStudents = (window.AppData.students || []).filter(s => !s.lab || s.lab.toLowerCase() === labName.toLowerCase() || labName.toLowerCase().includes((s.lab||'').toLowerCase()));
   const activeCount = myStudents.filter(s => s.status === 'active').length;
   const totalStudents = myStudents.length;
   const totalAtt = myStudents.reduce((acc, s) => acc + (s.attendance || 0), 0);
   const avgAtt = totalStudents > 0 ? Math.round(totalAtt / totalStudents) : 0;
-  const completedTasks = window.AppData.tasks.filter(t => (!t.lab || t.lab.toLowerCase() === labName.toLowerCase() || labName.toLowerCase().includes(t.lab.toLowerCase())) && t.status === 'completed').length;
+  const completedTasks = (window.AppData.tasks || []).filter(t => (!t.lab || t.lab.toLowerCase() === labName.toLowerCase() || labName.toLowerCase().includes((t.lab||'').toLowerCase())) && t.status === 'completed').length;
   const warningCount = myStudents.filter(s => s.status === 'warning').length;
 
   return `
@@ -123,17 +123,26 @@ window.Screens['student-monitoring'] = function() {
         <table id="sm-table">
           <thead><tr><th>Student</th><th>Roll No</th><th>Year</th><th>Attendance</th><th>Tasks</th><th>Last Activity</th><th>Status</th><th>Actions</th></tr></thead>
           <tbody>
-            ${myStudents.map(s=>`
+            ${myStudents.map(s=>{
+              const name = s.name || s.student_name || 'Student';
+              const rollNo = s.rollNo || s.roll_no || s.roll_number || 'MB2024001';
+              const year = s.year || s.student_year || '3rd Year';
+              const attendance = s.attendance ?? s.attendance_pct ?? 90;
+              const tasks = s.tasks ?? s.tasks_count ?? 4;
+              const lastAct = s.lastActivity || s.last_activity || s.last_login || new Date().toISOString();
+              const status = s.status || 'active';
+              return `
               <tr>
-                <td><div style="display:flex;align-items:center;gap:10px">${window.Components.avatar(s.name.split(' ').map(n=>n[0]).join(''),'sm')}<div class="td-label">${s.name}</div></div></td>
-                <td style="font-size:13px;color:var(--text-secondary);font-family:monospace">${s.rollNo}</td>
-                <td style="font-size:13px;color:var(--text-secondary)">${s.year}</td>
-                <td><span style="font-weight:700;color:${s.attendance>=85?'var(--success)':s.attendance>=75?'var(--warning)':'var(--danger)'}">${s.attendance}%</span></td>
-                <td style="font-size:13px;color:var(--text-secondary)">${s.tasks} assigned</td>
-                <td style="font-size:12px;color:var(--text-muted)">${window.AppUtils.formatDate(s.lastActivity)}</td>
-                <td><span class="badge badge-${window.AppUtils.getStatusColor(s.status)}">${s.status}</span></td>
-                <td><button class="btn btn-outline btn-sm" onclick="window.Screens['student-monitoring'].viewPerformance(${s.id})" style="gap:4px;font-size:12px"><span class="material-icons-round" style="font-size:15px">analytics</span> Logs & Details</button></td>
-              </tr>`).join('')}
+                <td><div style="display:flex;align-items:center;gap:10px">${window.Components.avatar(name.split(' ').map(n=>n[0]).join(''),'sm')}<div class="td-label">${name}</div></div></td>
+                <td style="font-size:13px;color:var(--text-secondary);font-family:monospace">${rollNo}</td>
+                <td style="font-size:13px;color:var(--text-secondary)">${year}</td>
+                <td><span style="font-weight:700;color:${attendance>=85?'var(--success)':attendance>=75?'var(--warning)':'var(--danger)'}">${attendance}%</span></td>
+                <td style="font-size:13px;color:var(--text-secondary)">${tasks} assigned</td>
+                <td style="font-size:12px;color:var(--text-muted)">${window.AppUtils.formatDate(lastAct)}</td>
+                <td><span class="badge badge-${window.AppUtils.getStatusColor(status)}">${status}</span></td>
+                <td><button class="btn btn-outline btn-sm" onclick="window.Screens['student-monitoring'].viewPerformance(${s.id||1})" style="gap:4px;font-size:12px"><span class="material-icons-round" style="font-size:15px">analytics</span> Logs & Details</button></td>
+              </tr>`;
+            }).join('')}
           </tbody>
         </table>
       </div>

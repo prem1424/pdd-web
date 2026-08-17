@@ -1,0 +1,73 @@
+name: Deploy to GitHub Pages & Execute Live Selenium E2E Tests
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+jobs:
+  deploy-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Stage 1 - Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Stage 2 - Setup Node.js & Python Environment
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Stage 3 & 4 - Install Web & Selenium Dependencies
+        run: |
+          pip install selenium pytest openpyxl jinja2 requests webdriver-manager
+
+      - name: Stage 5 - Deploy Application to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./smartstock-web
+
+      - name: Stage 6 & 7 - Wait & Verify Live GitHub Pages Deployment
+        run: |
+          BASE_URL="https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/"
+          echo "BASE_URL=${BASE_URL}" >> $GITHUB_ENV
+          echo "Verifying live deployment at ${BASE_URL}..."
+          sleep 10
+          curl -s -I "${BASE_URL}" || echo "Live site check complete"
+
+      - name: Stage 8-17 - Run Live Selenium 400+ E2E Tests & Generate Reports
+        run: |
+          mkdir -p "Test Results/Excel" "Test Results/HTML" "Test Results/Screenshots" "Test Results/Logs" "Test Results/Summary"
+          python3 selenium-tests/runners/run_selenium_suite.py --url "${BASE_URL}" --reports-dir "Test Results"
+
+      - name: Stage 18 - Upload Test Artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: live-selenium-e2e-reports
+          path: Test Results/
+          retention-days: 30
+
+      - name: Stage 21 - Publish GitHub Action Execution Summary
+        if: always()
+        run: |
+          if [ -f "Test Results/Summary/summary.md" ]; then
+            cat "Test Results/Summary/summary.md" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "# Live GitHub Pages Selenium E2E Execution Summary" >> $GITHUB_STEP_SUMMARY
+            echo "Target Live URL: ${{ env.BASE_URL }}" >> $GITHUB_STEP_SUMMARY
+            echo "Execution Date: $(date)" >> $GITHUB_STEP_SUMMARY
+          fi

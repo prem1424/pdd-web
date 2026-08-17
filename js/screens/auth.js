@@ -331,9 +331,10 @@ window.Screens['labhead-login'] = function() {
             ${!(window.AppData?.labs?.length) ? `
             <option value="Microbiology Lab">Microbiology Lab</option>
             <option value="Molecular Biology Lab">Molecular Biology Lab</option>
-            <option value="Clean Room Lab">Clean Room Lab</option>
-            <option value="Analytical Chemistry Lab">Analytical Chemistry Lab</option>
-            <option value="Physics Lab">Physics Lab</option>
+            <option value="Biotechnology Lab">Biotechnology Lab</option>
+            <option value="Clinical Genetics Lab">Clinical Genetics Lab</option>
+            <option value="Pathology Lab">Pathology Lab</option>
+            <option value="Bioinformatics Lab">Bioinformatics Lab</option>
             ` : ''}
           </select>
         </div>
@@ -450,7 +451,18 @@ window.Screens['labhead-signup'] = function() {
         <div class="form-group"><label class="form-label">Staff ID</label><input id="lh-reg-empid" class="form-input" placeholder="STAFF-001"></div>
       </div>
       <div class="form-group"><label class="form-label">Assigned Lab</label>
-        <select id="lh-reg-lab" class="form-input form-select">${window.AppData.labs.map(l=>`<option>${l.name}</option>`).join('')}</select>
+        <select id="lh-reg-lab" class="form-input form-select">
+          <option value="">-- Select your Lab --</option>
+          ${(window.AppData?.labs || []).map(l => `<option value="${l.name}">${l.name}</option>`).join('')}
+          ${!(window.AppData?.labs?.length) ? `
+          <option value="Microbiology Lab">Microbiology Lab</option>
+          <option value="Molecular Biology Lab">Molecular Biology Lab</option>
+          <option value="Biotechnology Lab">Biotechnology Lab</option>
+          <option value="Clinical Genetics Lab">Clinical Genetics Lab</option>
+          <option value="Pathology Lab">Pathology Lab</option>
+          <option value="Bioinformatics Lab">Bioinformatics Lab</option>
+          ` : ''}
+        </select>
       </div>
       <div class="form-group"><label class="form-label">Qualification</label><input id="lh-reg-qual" class="form-input" placeholder="Ph.D., M.Sc., etc."></div>
       <div class="form-group"><label class="form-label">Email</label><input id="lh-reg-email" class="form-input" type="email" placeholder="email@smartstock.in"></div>
@@ -631,7 +643,18 @@ window.Screens['student-signup'] = function() {
         <div class="form-group"><label class="form-label">Department</label><input id="stu-reg-dept" class="form-input" placeholder="Microbiology"></div>
       </div>
       <div class="form-group"><label class="form-label">Select Lab</label>
-        <select id="stu-reg-lab" class="form-input form-select">${window.AppData.labs.map(l=>`<option>${l.name}</option>`).join('')}</select>
+        <select id="stu-reg-lab" class="form-input form-select">
+          <option value="">-- Select your Lab --</option>
+          ${(window.AppData?.labs || []).map(l => `<option value="${l.name}">${l.name}</option>`).join('')}
+          ${!(window.AppData?.labs?.length) ? `
+          <option value="Microbiology Lab">Microbiology Lab</option>
+          <option value="Molecular Biology Lab">Molecular Biology Lab</option>
+          <option value="Biotechnology Lab">Biotechnology Lab</option>
+          <option value="Clinical Genetics Lab">Clinical Genetics Lab</option>
+          <option value="Pathology Lab">Pathology Lab</option>
+          <option value="Bioinformatics Lab">Bioinformatics Lab</option>
+          ` : ''}
+        </select>
       </div>
       <div class="form-group"><label class="form-label">Email</label><input id="stu-reg-email" class="form-input" type="email" placeholder="student@lab.in"></div>
       <div class="form-row">
@@ -772,21 +795,13 @@ window.Screens['student-lab-selection'].renderLabs = function(statuses) {
     let cursor = 'cursor:pointer';
     let onclick = '';
     
+    const slug = lab.name.toLowerCase().replace(/\s+/g,'-').replace(/[^a-z-]/g,'');
+    onclick = `onclick="window.AppState.selectedLab='${lab.name}';window.AppState.save();window.Router.navigate('${slug}')"`;
     if (status === 'approved') {
       borderStyle = 'border-color:var(--success);box-shadow:0 0 0 1px var(--success)';
-      onclick = `onclick="window.AppState.selectedLab='${lab.name}';window.AppState.save();window.Router.navigate('student-dashboard')"`;
-      actionHtml = `<div style="margin-top:12px"><button class="btn btn-primary" style="width:100%">Enter Lab</button></div>`;
-    } else if (status === 'pending') {
-      borderStyle = 'border-color:var(--warning)';
-      cursor = 'cursor:not-allowed';
-      actionHtml = `<div style="margin-top:12px;text-align:center;padding:8px;background:rgba(255,152,0,0.1);color:var(--warning);border-radius:8px;font-size:12px;font-weight:600">Pending Approval</div>`;
-    } else if (status === 'rejected') {
-      borderStyle = 'border-color:var(--danger)';
-      onclick = `onclick="window.Screens['student-lab-selection'].requestAccess('${lab.name}')"`;
-      actionHtml = `<div style="margin-top:12px;text-align:center;padding:8px;background:rgba(244,67,54,0.1);color:var(--danger);border-radius:8px;font-size:12px;font-weight:600;margin-bottom:8px">Rejected</div><button class="btn btn-outline" style="width:100%">Request Again</button>`;
+      actionHtml = `<div style="margin-top:12px"><button class="btn btn-primary" style="width:100%">Enter Lab Directly</button></div>`;
     } else {
-      onclick = `onclick="window.Screens['student-lab-selection'].requestAccess('${lab.name}')"`;
-      actionHtml = `<div style="margin-top:12px"><button class="btn btn-outline" style="width:100%">Request Access</button></div>`;
+      actionHtml = `<div style="margin-top:12px"><button class="btn btn-outline" style="width:100%">Enter ${lab.name}</button></div>`;
     }
   
     return `

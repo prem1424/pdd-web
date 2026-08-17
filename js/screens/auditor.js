@@ -15,8 +15,9 @@ const _labColors = [
 
 function _labCard(lab, i) {
   const statusClass = lab.status === 'active' ? 'success' : 'warning';
+  const slug = lab.name.toLowerCase().replace(/\s+/g,'-').replace(/[^a-z-]/g,'');
   return `
-  <div class="lab-card animate-in" onclick="window.Router.navigate('${lab.name.toLowerCase().replace(/\s+/g,'-').replace(/[^a-z-]/g,'')}')">
+  <div class="lab-card animate-in" onclick="window.AppState.selectedLab='${lab.name}'; window.AppState.save(); window.Router.navigate('${slug}')" style="cursor:pointer">
     <div class="lab-card-header">
       <div style="display:flex;align-items:center;gap:12px">
         <div class="lab-card-icon" style="background:${_labColors[i % _labColors.length]};color:#fff">

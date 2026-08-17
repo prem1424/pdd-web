@@ -57,16 +57,32 @@ window.InventoryViewDetails = function(id, category) {
 
 // ---- EQUIPMENT INVENTORY ----
 window.Screens['equipment-inventory'] = function() {
+  const labFilter = window.AppState?.selectedLab || window.AppState?.user?.lab || 'Microbiology Lab';
+  let items = window.AppData.equipment || [];
+  if (items.length === 0) {
+    items = [
+      { id: 'eq1', name: 'High-Speed Centrifuge 5424 R', brand: 'Eppendorf', model: '5424R', category: 'Centrifuges', lab: labFilter, status: 'operational', quantity: 2, lastMaintenance: new Date(Date.now() - 15*86400000).toISOString() },
+      { id: 'eq2', name: 'Biosafety Cabinet Class II Type A2', brand: 'Thermo Scientific', model: 'Herasafe 2020', category: 'Safety Cabinets', lab: labFilter, status: 'operational', quantity: 4, lastMaintenance: new Date(Date.now() - 30*86400000).toISOString() },
+      { id: 'eq3', name: 'UV-Vis Spectrophotometer', brand: 'Shimadzu', model: 'UV-1900i', category: 'Spectroscopy', lab: labFilter, status: 'maintenance', quantity: 1, lastMaintenance: new Date(Date.now() - 5*86400000).toISOString() },
+      { id: 'eq4', name: 'Orbital Shaker Incubator', brand: 'New Brunswick', model: 'I26', category: 'Incubators', lab: labFilter, status: 'operational', quantity: 3, lastMaintenance: new Date(Date.now() - 20*86400000).toISOString() },
+      { id: 'eq5', name: 'Autoclave Vertical 50L', brand: 'Precision', model: 'AC-50V', category: 'Sterilization', lab: labFilter, status: 'operational', quantity: 2, lastMaintenance: new Date(Date.now() - 10*86400000).toISOString() },
+      { id: 'eq6', name: 'PCR Thermal Cycler', brand: 'Bio-Rad', model: 'T100', category: 'Molecular', lab: labFilter, status: 'operational', quantity: 5, lastMaintenance: new Date(Date.now() - 40*86400000).toISOString() }
+    ];
+  }
+
+  const opCount = items.filter(i => i.status === 'operational').length;
+  const maintCount = items.filter(i => i.status === 'maintenance').length;
+
   return `
   <div>
-    ${window.Components.pageHeader('Equipment Inventory','213 Items across all labs','',
-      `<button class="btn btn-primary btn-sm" onclick="window.AppState.addStockCategory='Equipment';window.AppState.addStockReturn='equipment-inventory';window.Router.navigate('add-stock')"><span class="material-icons-round">add</span> Add</button>`)}
-    ${window.Components.searchBar('Search equipment...','eq-search')}
+    ${window.Components.pageHeader('Equipment Inventory',`${items.length} Items in ${labFilter}`,'',
+      `<button class="btn btn-primary btn-sm" onclick="window.AppState.addStockCategory='Equipment';window.AppState.addStockReturn='equipment-inventory';window.Router.navigate('add-stock')"><span class="material-icons-round">add</span> Add Equipment</button>`)}
+    ${window.Components.searchBar('Search equipment by name, brand, or category...','eq-search')}
     <div class="stats-grid mb-20">
-      ${window.Components.statCard('check_circle','Operational','180','+3','success','success')}
-      ${window.Components.statCard('build','Maintenance','24','+2','warning','warning')}
-      ${window.Components.statCard('report','Repair','8','-1','danger','danger')}
-      ${window.Components.statCard('archive','Retired','3','0','','')}
+      ${window.Components.statCard('check_circle','Operational',`${opCount}`,'+3','success','success')}
+      ${window.Components.statCard('build','Maintenance',`${maintCount}`,'+2','warning','warning')}
+      ${window.Components.statCard('report','Repair','1','0','danger','danger')}
+      ${window.Components.statCard('archive','Total Tracked',`${items.length}`,'0','blue','blue')}
     </div>
     <div class="filter-bar mb-16" id="eq-filters">
       <button class="filter-chip active" data-filter="all">All</button>
@@ -83,16 +99,17 @@ window.Screens['equipment-inventory'] = function() {
             </tr>
           </thead>
           <tbody>
-            ${window.AppData.equipment.map(e=>`
+            ${items.map(e=>`
               <tr data-status="${e.status}">
-                <td><div class="td-label">${e.name}</div><div class="td-sub">${e.brand} · ${e.model}</div></td>
-                <td style="font-size:13px;color:var(--text-secondary);max-width:140px">${e.lab}</td>
-                <td style="font-size:13px;color:var(--text-secondary)">${e.category}</td>
-                <td><span class="badge badge-${window.AppUtils.getStatusColor(e.status)}">${e.status}</span></td>
-                <td style="font-weight:700;color:var(--primary-bright);font-size:16px">${e.quantity}</td>
-                <td style="font-size:12px;color:var(--text-secondary)">${window.AppUtils.formatDate(e.lastMaintenance)}</td>
-                <td><div style="display:flex;gap:6px">                    <button class="btn btn-ghost btn-sm" onclick="window.AppState.editStockItem = window.AppData.equipment.find(item=>item.id==${e.id}); window.AppState.editStockCategory='Equipment'; window.Router.navigate('edit-stock')"><span class="material-icons-round" style="font-size:16px">edit</span></button>
-                    <button class="btn btn-outline btn-sm" onclick="window.InventoryViewDetails(${e.id}, 'Equipment')"><span class="material-icons-round" style="font-size:16px">visibility</span></button>
+                <td><div class="td-label">${e.name}</div><div class="td-sub">${e.brand || 'Lab Grade'} · ${e.model || 'Standard'}</div></td>
+                <td style="font-size:13px;color:var(--text-secondary);max-width:140px">${e.lab || labFilter}</td>
+                <td style="font-size:13px;color:var(--text-secondary)">${e.category || 'Equipment'}</td>
+                <td><span class="badge badge-${window.AppUtils.getStatusColor(e.status)}">${e.status || 'operational'}</span></td>
+                <td style="font-weight:700;color:var(--primary-bright);font-size:16px">${e.quantity || 1}</td>
+                <td style="font-size:12px;color:var(--text-secondary)">${window.AppUtils.formatDate(e.lastMaintenance || e.last_maintenance)}</td>
+                <td><div style="display:flex;gap:6px">
+                    <button class="btn btn-ghost btn-sm" onclick="window.AppState.editStockItem = window.AppData.equipment.find(item=>item.id==${e.id})||${JSON.stringify(e)}; window.AppState.editStockCategory='Equipment'; window.Router.navigate('edit-stock')"><span class="material-icons-round" style="font-size:16px">edit</span></button>
+                    <button class="btn btn-outline btn-sm" onclick="window.InventoryViewDetails('${e.id}', 'Equipment')"><span class="material-icons-round" style="font-size:16px">visibility</span></button>
                 </div></td>
               </tr>`).join('')}
           </tbody>
